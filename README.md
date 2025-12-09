@@ -6,21 +6,43 @@ This project captures video from your camera, detects human faces in real-time u
 
 Radithole Maripa
 
-## Dependencies
+## System Requirements
 
-- OpenCV (Windows, MinGW)
-- Dlib
-- C++17 compatible compiler
+To build and run this project on Windows, you must have the following installed:
+
+- **MinGW-w64** (64-bit GCC compiler for Windows)  
+- **OpenCV** (precompiled or compiled for Windows)  
+- **Dlib** (C++ library for machine learning and computer vision)  
 
 > Note: OpenCV uses BSD 3-Clause License, Dlib uses Boost Software License.  
 > If redistributing their binaries or source, include the respective license notices.
 
 ## Build on Windows
 
-1. Ensure OpenCV and Dlib are installed.  
-2. Update the `Makefile` paths if needed:
+> Important: Update the paths in the `Makefile` to match where OpenCV and Dlib are installed on your system.  
+> Example lines in `Makefile` (replace with your paths):
 
 ```make
-OPENCV_DIR := C:/OpenCV/install
-DLIB_DIR := C:/Dlib
+OPENCV_DIR := C:/path/to/your/opencv
+DLIB_DIR := C:/path/to/your/dlib
+```
 
+1. Open **Command Prompt** in the project folder.
+2. Run:
+```make
+mingw32-make
+```
+- This will compile the source files and create the executable FaceDetect.exe.
+
+3. To clean build artifacts:
+```make
+mingw32-make clean
+```
+
+## Run Instructions
+1. In the Command Line the following
+```make
+FaceDetect
+```
+- A window will open showing the camera feed. Detected faces will have green rectangles around them.
+- Press q to quit the program.
