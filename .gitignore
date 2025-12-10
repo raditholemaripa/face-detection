@@ -1,5 +1,7 @@
-# Ignore build folder and everything in it
+# Ignore build and configuration folder and everything in it
 build/
+.vscode/
 
 # Ignore object files
 *.o
+*.exe
