@@ -34,7 +34,7 @@ CXXFLAGS := -std=c++17 -O2 -mavx
 # ---------------------
 # OpenCV paths
 # ---------------------
-OPENCV_DIR := C:/OpenCV/install
+OPENCV_DIR := C:/OpenCV
 OPENCV_LIB := $(OPENCV_DIR)/x64/mingw/lib
 OPENCV_INCLUDES := $(OPENCV_DIR)/include
 
@@ -60,10 +60,10 @@ LIBDIRS := -L$(OPENCV_LIB) \
 # ---------------------
 # Libraries to link
 # ---------------------
-LIBS := -lopencv_core4110 \
-	-lopencv_highgui4110 \
-	-lopencv_imgproc4110 \
-	-lopencv_videoio4110 \
+LIBS := -lopencv_core4120 \
+	-lopencv_highgui4120 \
+	-lopencv_imgproc4120 \
+	-lopencv_videoio4120 \
 	-ldlib \
 	-luser32 \
 	-lgdi32 \
