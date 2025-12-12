@@ -51,5 +51,5 @@ is in the same directory as the executable or update the path in your code.
 ```make
 FaceDetect
 ```
-- A window will open showing the camera feed. Detected faces will have green rectangles around them.
+- A window will open showing the camera feed. Detected faces will have green rectangles and facial landmarks will be marked.
 - Press q to quit the program.
