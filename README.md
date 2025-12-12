@@ -17,6 +17,11 @@ To build and run this project on Windows, you must have the following installed:
 > Note: OpenCV uses BSD 3-Clause License, Dlib uses Boost Software License.  
 > If redistributing their binaries or source, include the respective license notices.
 
+## Required Files
+- **shape_preditor_68_face_landmarks.dat** - Dlib's facial landmark predictor model.
+This file is required for detecting key facial points (eyes, nose, mouth. jawline) 
+after a face is detected.
+
 ## Build on Windows
 
 > Important: Update the paths in the `Makefile` to match where OpenCV and Dlib are installed on your system.  
@@ -40,7 +45,9 @@ mingw32-make clean
 ```
 
 ## Run Instructions
-1. In the Command Line the following
+1. Ensure the **face predictor model file(shape_predictor_68_face_landmarks.dat)** 
+is in the same directory as the executable or update the path in your code.
+2. In the Command Line, run:
 ```make
 FaceDetect
 ```
