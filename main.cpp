@@ -22,6 +22,9 @@
 
 using namespace std;
 
+// Detect a smile using landmark points and calculating the smile ratio
+string detectSmile(const dlib::full_object_detection& shape);
+
 int main()
 {
     // Open the default camera (camera index 0)
@@ -70,6 +73,10 @@ int main()
                 auto point = shape.part(i);
                 cv::circle(frame, cv::Point(point.x(), point.y()), 2, cv::Scalar(255, 0, 0), -1);
             }
+
+            string smileText = detectSmile(shape);
+            cv::putText(frame, smileText, cv::Point(face.left(), face.top() - 10),
+                        cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(0, 0, 255), 2);
         }
 
         // Display the frame with rectangles
@@ -81,4 +88,24 @@ int main()
     }
 
     return 0;  // End program
+}
+
+// Function definition
+string detectSmile(const dlib::full_object_detection& shape)
+{
+    cv::Point leftMouth(shape.part(48).x(), shape.part(48).y());
+    cv::Point rightMouth(shape.part(54).x(), shape.part(54).y());
+    cv::Point topMouth(shape.part(51).x(), shape.part(51).y());
+    cv::Point bottomMouth(shape.part(57).x(), shape.part(57).y());
+
+    double mouthWidth = cv::norm(rightMouth - leftMouth);
+    double mouthHeight = cv::norm(bottomMouth - topMouth);
+    double smileRatio = mouthWidth / mouthHeight;
+    static std::vector<double> lastRatios;
+    lastRatios.push_back(smileRatio);
+    if(lastRatios.size() > 5) lastRatios.erase(lastRatios.begin());
+
+    double avgRatio = std::accumulate(lastRatios.begin(), lastRatios.end(), 0.0) / lastRatios.size();
+
+    return (avgRatio > 3.15) ? "Smiling :)" : "Neutral";
 }
