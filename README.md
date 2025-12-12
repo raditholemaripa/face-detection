@@ -1,6 +1,7 @@
 # Real-Time Face Detection
 
 This project captures video from your camera, detects human faces in real-time using Dlib's frontal face detector, and draws green rectangles around detected faces.
+It also uses a shape predictor model to detect facial landmarks.
 
 ## Author
 

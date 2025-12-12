@@ -38,7 +38,7 @@ int main()
 
     // Load the 68-point face landmark model
     dlib::shape_predictor shapePredictor;
-    dlib::deserialize("shape_predictor_68_face_landmark.dat") >> shapePredictor;
+    dlib::deserialize("shape_predictor_68_face_landmarks.dat") >> shapePredictor;
 
     while (true)
     {
@@ -68,7 +68,7 @@ int main()
             // Draw each landmark point
             for(auto i = 0; i < shape.num_parts(); i++) {
                 auto point = shape.part(i);
-                cv::circle(frame, cv::Point(point.x(), point.y()), 2, cv::Scalar(0, 0, 255), -1);
+                cv::circle(frame, cv::Point(point.x(), point.y()), 2, cv::Scalar(255, 0, 0), -1);
             }
         }
 
