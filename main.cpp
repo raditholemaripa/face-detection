@@ -5,13 +5,15 @@
  * Description:
  *   This program captures video from the default camera,
  *   detects human faces in real-time using Dlib's 
- *   frontal face detector, and draws green rectangles
+ *   frontal face detector, and draws green rectangles,
+ *   it also detects the facial landmarks
  *   around detected faces. Press 'q' to exit the program.
  * Dependencies:
  *   - OpenCV (for video capture and image display)
  *   - Dlib (for face detection)
  ***************************************************************/
 
+#include <dlib/image_processing/shape_predictor.h>
 #include <dlib/image_processing/frontal_face_detector.h>  // Dlib face detector
 #include <dlib/image_processing.h>                        // Dlib image processing utilities
 #include <dlib/opencv.h>                                  // To convert OpenCV image to Dlib format
@@ -24,6 +26,8 @@ int main()
 {
     // Open the default camera (camera index 0)
     cv::VideoCapture video(0);
+    cv::Mat frame;                                         // Matrix to store video frames
+
     if (!video.isOpened()) {
         cout << "Could not open camera\n";  			   // Print error if camera is not accessible
         return -1;
@@ -32,7 +36,9 @@ int main()
     // Initialize Dlib's frontal face detector
     dlib::frontal_face_detector detector = dlib::get_frontal_face_detector();
 
-    cv::Mat frame;  // Matrix to store video frames
+    // Load the 68-point face landmark model
+    dlib::shape_predictor shapePredictor;
+    dlib::deserialize("shape_predictor_68_face_landmark.dat") >> shapePredictor;
 
     while (true)
     {
@@ -55,6 +61,15 @@ int main()
                 cv::Scalar(0, 255, 0),                	// Green color
                 2                                      // Thickness
             );
+
+            // Get landmarks
+            dlib::full_object_detection shape = shapePredictor(cimg, face);
+
+            // Draw each landmark point
+            for(auto i = 0; i < shape.num_parts(); i++) {
+                auto point = shape.part(i);
+                cv::circle(frame, cv::Point(point.x(), point.y()), 2, cv::Scalar(0, 0, 255), -1);
+            }
         }
 
         // Display the frame with rectangles
