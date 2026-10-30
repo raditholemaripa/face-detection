@@ -28,7 +28,7 @@ using namespace std;
 // Detect a smile using landmark points and calculating the smile ratio
 string detectSmile(const dlib::full_object_detection& shape);
 
-int main()
+int main(int  argc, char** argv)
 {
     // Open the default camera (camera index 0)
     cv::VideoCapture video(0);
@@ -42,9 +42,31 @@ int main()
     // Initialize Dlib's frontal face detector
     dlib::frontal_face_detector detector = dlib::get_frontal_face_detector();
 
-    // Load the 68-point face landmark model
+    // Load the 68-point face landmark model.
+    // Prefer a copy next to the executable (CMake copies it there at build time),
+    // falling back to the current working directory.
+    std::filesystem::path modelPath = "shape_predictor_68_face_landmarks.dat";
+    if (argc > 0 && argv[0] != nullptr) {
+        std::filesystem::path exeDir = std::filesystem::path(argv[0]).parent_path();
+        std::filesystem::path candidate = exeDir / "shape_predictor_68_face_landmarks.dat";
+        if (std::filesystem::exists(candidate)) {
+            modelPath = candidate;
+        }
+    }
+
+    if (!std::filesystem::exists(modelPath)) {
+        std::cerr << "Landmark model not found: " << modelPath << "\n"
+                  << "Place shape_predictor_68_face_landmarks.dat next to the executable.\n";
+        return -1;
+    }
+
     dlib::shape_predictor shapePredictor;
-    dlib::deserialize("shape_predictor_68_face_landmarks.dat") >> shapePredictor;
+    try {
+        dlib::deserialize(modelPath.string()) >> shapePredictor;
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to load landmark model: " << e.what() << "\n";
+        return -1;
+    }
 
     while (true)
     {
