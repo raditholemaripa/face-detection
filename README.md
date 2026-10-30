@@ -1,96 +1,141 @@
 # Real-Time Face Detection
-This project captures video from your camera, detects human faces in real time using Dlib’s frontal face detector, identifies facial landmarks, and computes a smile ratio to determine whether the person is smiling.
 
-## Author
-Radithole Maripa
+A C++ desktop application that captures video from your camera, detects human faces in real time using Dlib's frontal face detector, identifies 68 facial landmarks, and computes a smile ratio to determine whether the person is smiling.
+
+Built with **OpenCV** (video capture and rendering) and **Dlib** (face detection and landmark prediction).
+
+## Demo
+
+![Neutral face](images/neutral.png)
+
+![Smile with landmarks](images/smile.png)
 
 ## Features
-- Real-time face detection
+
+- Real-time face detection via Dlib's HOG-based frontal face detector
 - 68-point facial landmark detection
-- Smile detection using geometric ratio
-- Facial landmark visualization
-- Works with OpenCV + Dlib
+- Smile detection using a geometric mouth width/height ratio
+- Facial landmark visualization (green box, blue points, red status text)
+- Press `q` to quit
 
-## System Requirements
-To build and run this project on Windows, you must have the following installed:
-- **MinGW-w64** (64-bit GCC compiler for Windows)  
-- **OpenCV** (precompiled or compiled for Windows)  
-- **Dlib** (C++ library for machine learning and computer vision) 
-- shape_predictor_68_face_landmarks.dat (included in the repository) 
+## Requirements
 
-> Note: OpenCV uses BSD 3-Clause License, Dlib uses Boost Software License.  
-> If redistributing their binaries or source, include the respective license notices.
+- **CMake** 3.16 or newer
+- **C++17** compiler (MinGW-w64 GCC 9+, MSVC 2019+, or Clang 10+)
+- **OpenCV** 4.x
+- **Dlib** 19.20 or newer
+- **Landmark model file** `shape_predictor_68_face_landmarks.dat` (see below)
 
-## Required Files
-- **shape_preditor_68_face_landmarks.dat** - Dlib's facial landmark predictor model.
-This file is required for detecting key facial points (eyes, nose, mouth. jawline) 
-after a face is detected.
+## Get the landmark model
 
-## Build on Windows
-> Important: Update the paths in the `Makefile` to match where OpenCV and Dlib are installed on your system.  
-> Example lines in `Makefile` (replace with your paths):
-```make
-OPENCV_DIR := C:/path/to/your/opencv
-DLIB_DIR := C:/path/to/your/dlib
-```
-1. Open **Command Prompt** in the project folder.
-2. Run:
-```make
-mingw32-make
-```
-- This will compile the source files and create the executable FaceDetect.exe.
-3. To clean build artifacts:
-```make
-mingw32-make clean
+The 68-point landmark model is **not included in the repository** (it is ~99 MB). Download it once and place it in the project root:
+
+```bat
+curl.exe -L http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2 -o shape_predictor_68_face_landmarks.dat.bz2
+tar.exe -xjf shape_predictor_68_face_landmarks.dat.bz2
 ```
 
-## Run Instructions
-1. Ensure the **face predictor model file(shape_predictor_68_face_landmarks.dat)** 
-is in the same directory as the executable or update the path in your code.
-2. In the Command Line, run:
-```make
-FaceDetect
-```
-- A Window opens showing the camera feed.
-- Green rectangles show detected faces.
-- Blue points show facial landmarks.
-- Text above the face shows the smile status.
-- Press q to quit the program.
+On Linux / macOS:
 
-## Smile Detection (Using Facial Landmarks)
-The program detects smiles by comparing the width of the mouth to the height of the mouth.
-These values come from the Dlib's 68-point landmark model
+```bash
+curl -L http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2 -o shape_predictor_68_face_landmarks.dat.bz2
+bunzip2 shape_predictor_68_face_landmarks.dat.bz2
+```
 
-## Landmark Points Used
-- Point 48 - Left mouth corner
-- Point 54 - Right mouth corner
-- Point 51 - Top of upper lip
-- Point 57 - Bottom of lower lip
-Coordinates:
-- Left: (x48, y48)
-- Right: (x54, y54)
-- Top: (x51, y51)
-- Bottom: (x57, y57)
+Without `curl`/`tar`, download both the `.dat.bz2` and 7-Zip from the official sources and extract manually. The CMake build copies the `.dat` file next to the executable automatically.
 
-## Mouth Width
-```make
-mouthWidth = sqrt( (x54 - x48)^2 + (y54 - y48)^2 )
+## Build
+
+### Windows (MinGW)
+
+Point CMake at your Dlib config folder if it is not in a standard location:
+
+```bat
+cmake -G "MinGW Makefiles" -S . -B build -DCMAKE_BUILD_TYPE=Release -Ddlib_DIR="C:/path/to/dlib/cmake"
+cmake --build build -j
 ```
-## Mouth Height
-```make
-mouthHeight = sqrt( (x57 - x51)^2 + (y57 - y51)^2 )
+
+### Linux / macOS
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j
 ```
-## Smile Ratio
-```make
-smileRatio = mouthWidth / mouthHeight
+
+The executable is produced at `build/FaceDetect.exe` (Windows) or `build/FaceDetect` (Linux/macOS).
+
+## Run
+
+```bat
+build\FaceDetect.exe
 ```
-Smiling increases the horizontal width of the mouth more than the vertical height.
-## Interpretation
-This depends on lighting and camera quality:
-- Neutral: around 2.0 to 3.0
-- Smiling: greater than 3.1 to 4.0
-On the camera currently being used for this project, a threshold between 3.15 and 3.6 gives accurate results.
-## Example Output
-Add your own images inside a folder named images/.
-![Neutral Face](images/neutral.png)
-![Smile Landmarks](images/smile.png)
+
+```bash
+./build/FaceDetect
+```
+
+A window opens showing the camera feed:
+
+- **Green rectangle** — detected face
+- **Blue points** — 68 facial landmarks
+- **Red text above the face** — "Smiling :)" or "Neutral"
+- Press **q** to quit
+
+## Smile detection
+
+The smile classifier compares mouth width to mouth height using four of Dlib's 68 landmark points:
+
+| Landmark | Point |
+|---|---|
+| 48 | Left mouth corner |
+| 54 | Right mouth corner |
+| 51 | Top of upper lip |
+| 57 | Bottom of lower lip |
+
+```
+mouthWidth  = norm(point54 - point48)
+mouthHeight = norm(point57 - point51)
+smileRatio  = mouthWidth / mouthHeight
+```
+
+A smiling mouth is wider relative to its height than a neutral mouth. The ratio is smoothed over the last 5 frames per face, then thresholded.
+
+### Threshold tuning
+
+The default threshold is **3.15**. This value is **camera- and lighting-dependent**:
+
+- Neutral: roughly 2.0 – 3.0
+- Smiling: roughly 3.1 – 4.0
+
+If the classifier is too eager or too sluggish on your setup, adjust the `3.15` constant in `detectSmile()` in `main.cpp`.
+
+## Known limitations
+
+- The HOG-based frontal face detector works best on **frontal faces**. Profile views and extreme angles are often missed.
+- Detection quality drops in **low light** and for **small or distant faces**.
+- The smile threshold is calibrated for typical webcam framing — see **Threshold tuning** above.
+- The program assumes the camera is available at **device index 0**.
+
+## Project structure
+
+```
+face-detection/
+├── CMakeLists.txt
+├── main.cpp
+├── README.md
+├── LICENSE
+├── images/
+│   ├── neutral.png
+│   └── smile.png
+└── shape_predictor_68_face_landmarks.dat   (downloaded, not tracked)
+```
+
+## License
+
+MIT License — see [LICENSE](LICENSE).
+
+OpenCV is licensed under the BSD 3-Clause License; Dlib is licensed under the Boost Software License. If you redistribute their binaries or source, include the respective license notices.
+
+## Author
+
+Radithole Maripa
