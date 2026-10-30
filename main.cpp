@@ -26,7 +26,7 @@
 using namespace std;
 
 // Detect a smile using landmark points and calculating the smile ratio
-string detectSmile(const dlib::full_object_detection& shape);
+string detectSmile(const dlib::full_object_detection& shape, std::vector<double>& history);
 
 int main(int  argc, char** argv)
 {
@@ -68,6 +68,7 @@ int main(int  argc, char** argv)
         return -1;
     }
 
+    std::vector<double> smileHistory;
     while (true)
     {
         video >> frame;          // Capture a new frame
@@ -82,6 +83,10 @@ int main(int  argc, char** argv)
 
         // Draw rectangles around detected faces
         for (const auto& face : faces) {
+            if(faces.size() != 1) {
+                smileHistory.clear();
+            }
+
             cv::rectangle(
                 frame,
                 cv::Point(face.left(), face.top()),    	// Top-left corner
@@ -99,7 +104,7 @@ int main(int  argc, char** argv)
                 cv::circle(frame, cv::Point(point.x(), point.y()), 2, cv::Scalar(255, 0, 0), -1);
             }
 
-            string smileText = detectSmile(shape);
+            string smileText = detectSmile(shape, smileHistory);;
             cv::putText(frame, smileText, cv::Point(face.left(), face.top() - 10),
                         cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(0, 0, 255), 2);
         }
@@ -116,7 +121,7 @@ int main(int  argc, char** argv)
 }
 
 // Function definition
-string detectSmile(const dlib::full_object_detection& shape)
+std::string detectSmile(const dlib::full_object_detection& shape, std::vector<double>& history)
 {
     cv::Point leftMouth(shape.part(48).x(), shape.part(48).y());
     cv::Point rightMouth(shape.part(54).x(), shape.part(54).y());
@@ -127,11 +132,11 @@ string detectSmile(const dlib::full_object_detection& shape)
     double mouthHeight = std::max(cv::norm(bottomMouth - topMouth), 1e-6);
     double smileRatio  = mouthWidth / mouthHeight;
 
-    static std::vector<double> lastRatios;
-    lastRatios.push_back(smileRatio);
-    if(lastRatios.size() > 5) lastRatios.erase(lastRatios.begin());
+    history.push_back(smileRatio);
+    if (history.size() > 5) history.erase(history.begin());
 
-    double avgRatio = std::accumulate(lastRatios.begin(), lastRatios.end(), 0.0) / lastRatios.size();
+    double avg = std::accumulate(history.begin(), history.end(), 0.0)
+               / static_cast<double>(history.size());
 
-    return (avgRatio > 3.15) ? "Smiling :)" : "Neutral";
+    return (avg > 3.15) ? "Smiling :)" : "Neutral";
 }
