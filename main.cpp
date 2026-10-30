@@ -19,6 +19,9 @@
 #include <dlib/opencv.h>                                  // To convert OpenCV image to Dlib format
 #include <opencv2/opencv.hpp>                             // OpenCV main header
 #include <iostream>                                       // For console output
+#include <numeric>
+#include <filesystem>
+#include <exception>
 
 using namespace std;
 
