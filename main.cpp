@@ -123,9 +123,10 @@ string detectSmile(const dlib::full_object_detection& shape)
     cv::Point topMouth(shape.part(51).x(), shape.part(51).y());
     cv::Point bottomMouth(shape.part(57).x(), shape.part(57).y());
 
-    double mouthWidth = cv::norm(rightMouth - leftMouth);
-    double mouthHeight = cv::norm(bottomMouth - topMouth);
-    double smileRatio = mouthWidth / mouthHeight;
+    double mouthWidth  = cv::norm(rightMouth - leftMouth);
+    double mouthHeight = std::max(cv::norm(bottomMouth - topMouth), 1e-6);
+    double smileRatio  = mouthWidth / mouthHeight;
+
     static std::vector<double> lastRatios;
     lastRatios.push_back(smileRatio);
     if(lastRatios.size() > 5) lastRatios.erase(lastRatios.begin());
