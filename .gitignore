@@ -1,7 +1,32 @@
-# Ignore build and configuration folder and everything in it
+# Build output
 build/
-.vscode/
+out/
+cmake-build-*/
+bin/
+obj/
 
-# Ignore object files
+# CMake artifacts (in-source safety)
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+
+# Compiled objects and binaries
 *.o
+*.obj
 *.exe
+FaceDetect
+
+# Dlib model file (downloaded separately)
+shape_predictor_68_face_landmarks.dat
+*.dat.bz2
+
+# IDE / editor
+.vscode/
+.idea/
+*.user
+*.swp
+.DS_Store
+Thumbs.db
